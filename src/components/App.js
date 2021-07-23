@@ -1,28 +1,38 @@
 // This component handles the App template used on every page.
-import React, {PropTypes, Component} from 'react';
+import React from 'react';
+import { Route, Switch } from 'react-router-dom';
+import HomePage from './home/HomePage';
+import AboutPage from './about/AboutPage';
 import Header from './common/Header';
-import {connect} from 'react-redux';
+import PageNotFound from './PageNotFound';
+import CoursesPage from './course/CoursesPage';
+// import { connect } from 'react-redux';
 
-class App extends Component{
-  render(){
-    return(
-      <div className="container-fluid">
-        <Header loading={this.props.loading}/>
-        {this.props.children}
-      </div>
-    );
-  }
+function App() {
+  return (
+    <div className="container-fluid">
+      <Header />
+      <Switch>
+        <Route exact path="/" component={HomePage} />
+        <Route path="/about" component={AboutPage} />
+        <Route path="/courses" component={CoursesPage} />
+        <Route component={PageNotFound} />
+      </Switch>
+    </div>
+  );
 }
 
-App.propTypes = {
-  children: PropTypes.object.isRequired,
-  loading: PropTypes.bool.isRequired
-};
+export default App;
 
-function mapStateToProps(state, ownProps){
-  return{
-    loading: state.ajaxCallsInProgress > 0
-  };
-}
+// App.propTypes = {
+//   children: PropTypes.object.isRequired,
+//   loading: PropTypes.bool.isRequired,
+// };
 
-export default connect(mapStateToProps)(App);
+// function mapStateToProps(state, ownProps) {
+//   return {
+//     loading: state.ajaxCallsInProgress > 0,
+//   };
+// }
+
+// export default connect(mapStateToProps)(App);
