@@ -1,4 +1,3 @@
-// This component handles the App template used on every page.
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import HomePage from './home/HomePage';
@@ -6,7 +5,7 @@ import AboutPage from './about/AboutPage';
 import Header from './common/Header';
 import PageNotFound from './PageNotFound';
 import CoursesPage from './courses/CoursesPage';
-import ManageCoursePage from './courses/ManageCoursePage';
+import ManageCoursePage from './courses/ManageCoursePage'; // eslint-disable-line import/no-named-as-default
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
