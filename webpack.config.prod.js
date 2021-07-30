@@ -1,40 +1,75 @@
-import webpack from 'webpack';
-import path from 'path';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
+const webpack = require('webpack');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpackBundleAnalyzer = require('webpack-bundle-analyzer');
 
-const GLOBALS = {
-  'process.env.NODE_ENV': JSON.stringify('production')
-};
+process.env.NODE_ENV = 'production';
 
-export default{
-  debug: true,
-  devtool: 'source-map',
-  noInfo: false,
-  entry: './src/index',
+module.exports = {
+  mode: 'production',
   target: 'web',
+  devtool: 'source-map',
+  entry: './src/index',
   output: {
-    path: __dirname + '/dist', // Note: Physical files are only output by the production build task `npm run build`.
+    path: path.resolve(__dirname, 'build'),
     publicPath: '/',
-    filename: 'bundle.js'
-  },
-  devSever: {
-    contentBase: './dist'
+    filename: 'bundle.js',
   },
   plugins: [
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.DefinePlugin(GLOBALS),
-    new ExtractTextPlugin('styles.css'),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin()
+    // Display bundle stats
+    new webpackBundleAnalyzer.BundleAnalyzerPlugin({ analyzerMode: 'static' }),
+    new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
+    new webpack.DefinePlugin({
+      // This global makes sure React is built in prod mode.
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.API_URL': JSON.stringify('http://localhost:3001'),
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+      favicon: 'src/favicon.ico',
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true,
+      },
+    }),
   ],
   module: {
-    loaders: [
-      {test: /\.js$/, include: path.join(__dirname, 'src'), loaders: ['babel']},
-      {test: /(\.css)$/, loader: ExtractTextPlugin.extract("css?sourceMap")},
-      {test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file'},
-      {test: /\.(woff|woff2)$/, loader: 'url?prefix=font/&limit=5000'},
-      {test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream'},
-      {test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=image/svg+xml'}
-    ]
-  }
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: ['babel-loader', 'eslint-loader'],
+      },
+      {
+        test: /(\.css)$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [() => [require('cssnano')]],
+              },
+              sourceMap: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
